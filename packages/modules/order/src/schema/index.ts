@@ -201,6 +201,7 @@ type OrderLineItem {
   created_at: DateTime!
   updated_at: DateTime!
   metadata: JSON
+  line_item_metadata: JSON
   original_total: Float
   original_subtotal: Float
   original_tax_total: Float
@@ -409,8 +410,8 @@ type OrderClaimItem {
   metadata: JSON
   created_at: DateTime
   updated_at: DateTime
-  item: OrderLineItem
-  claim: OrderClaim
+  item: OrderLineItem!
+  claim: OrderClaim!
 }
 
 type OrderClaimItemImage {
@@ -434,8 +435,8 @@ type OrderExchangeItem {
   metadata: JSON
   created_at: DateTime
   updated_at: DateTime
-  exchange: OrderExchange
-  item: OrderLineItem
+  exchange: OrderExchange!
+  item: OrderLineItem!
 }
 
 type OrderClaim {

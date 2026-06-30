@@ -123,6 +123,11 @@ export const navDropdownItems: NavigationItem[] = [
           },
           {
             type: "link",
+            title: "Loyalty",
+            link: "/resources/commerce-modules/loyalty",
+          },
+          {
+            type: "link",
             title: "Order",
             link: "/resources/commerce-modules/order",
           },
@@ -165,6 +170,11 @@ export const navDropdownItems: NavigationItem[] = [
             type: "link",
             title: "Store",
             link: "/resources/commerce-modules/store",
+          },
+          {
+            type: "link",
+            title: "Store Credit",
+            link: "/resources/commerce-modules/store-credit",
           },
           {
             type: "link",
@@ -296,6 +306,12 @@ export const navDropdownItems: NavigationItem[] = [
         title: "Medusa UI",
         link: "/ui",
         sidebar_id: "ui",
+      },
+      {
+        type: "link",
+        title: "ESLint Plugin",
+        link: "/resources/lint",
+        sidebar_id: "lint",
       },
     ],
   },

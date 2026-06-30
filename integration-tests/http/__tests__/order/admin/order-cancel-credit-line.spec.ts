@@ -10,13 +10,15 @@ import { createOrderSeeder } from "../../fixtures/order"
 jest.setTimeout(300000)
 
 medusaIntegrationTestRunner({
-  testSuite: ({ dbConnection, getContainer, api }) => {
+  testSuite: ({ dbConnection, getContainer, api, dbUtils }) => {
     let container
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       container = getContainer()
       await setupTaxStructure(container.resolve(ModuleRegistrationName.TAX))
       await createAdminUser(dbConnection, adminHeaders, container)
+
+      await dbUtils.snapshot()
     })
 
     describe("POST /admin/orders/:id/cancel - Credit Line Calculation with Multiple Payments", () => {
@@ -166,6 +168,81 @@ medusaIntegrationTestRunner({
           // The order total should be properly balanced (1272 - 50 = 1222)
           expect(canceledOrder.summary.current_order_total).toBe(1222)
           expect(canceledOrder.summary.accounting_total).toBe(1222)
+        })
+
+        it("should not double-count pre-existing refunds when cancelling an order", async () => {
+          const seeder = await createOrderSeeder({
+            api,
+            container,
+          })
+          const order = seeder.order
+
+          const originalPayment = order.payment_collections[0].payments[0]
+          const paymentAmount = originalPayment.amount
+          const partialRefundAmount = 500
+
+          await api.post(
+            `/admin/payments/${originalPayment.id}/capture`,
+            { amount: paymentAmount },
+            adminHeaders
+          )
+
+          await api.post(
+            `/admin/payments/${originalPayment.id}/refund`,
+            { amount: partialRefundAmount },
+            adminHeaders
+          )
+
+          const orderBeforeCancel = (
+            await api.get(
+              `/admin/orders/${order.id}?fields=*credit_lines.amount,*payment_collections.payments.captures.amount,*payment_collections.payments.refunds.amount`,
+              adminHeaders
+            )
+          ).data.order
+
+          const beforePayment =
+            orderBeforeCancel.payment_collections[0].payments[0]
+          expect(beforePayment.captures).toHaveLength(1)
+          expect(beforePayment.captures[0].amount).toBe(paymentAmount)
+          expect(beforePayment.refunds).toHaveLength(1)
+          expect(beforePayment.refunds[0].amount).toBe(partialRefundAmount)
+
+          const creditLineAmountFromRefund =
+            orderBeforeCancel.credit_lines.reduce(
+              (sum, cl) => sum + cl.amount,
+              0
+            )
+
+          const cancelResponse = await api.post(
+            `/admin/orders/${order.id}/cancel`,
+            {},
+            adminHeaders
+          )
+
+          expect(cancelResponse.status).toBe(200)
+
+          const canceledOrder = (
+            await api.get(
+              `/admin/orders/${order.id}?fields=*credit_lines.amount,*payment_collections.payments.captures.amount,*payment_collections.payments.refunds.amount`,
+              adminHeaders
+            )
+          ).data.order
+
+          expect(canceledOrder.status).toBe("canceled")
+
+          const totalCreditLineAmount = canceledOrder.credit_lines.reduce(
+            (sum, cl) => sum + cl.amount,
+            0
+          )
+
+          // Cancel should only credit the remaining (non-refunded) captured
+          // amount, not the full captured amount. Total credit lines across
+          // the partial refund + the cancel should equal the captured amount.
+          expect(totalCreditLineAmount).toBe(paymentAmount)
+
+          const creditLineFromCancel =
+            totalCreditLineAmount - creditLineAmountFromRefund
+          expect(creditLineFromCancel).toBe(paymentAmount - partialRefundAmount)
         })
 
         it("should handle order with all payments canceled - zero credit line", async () => {
