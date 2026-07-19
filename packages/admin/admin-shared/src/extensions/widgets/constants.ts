@@ -425,6 +425,10 @@ const GIFT_CARD_PRODUCT_INJECTION_ZONES = [
   "gift_card_product.list",
 ] as const
 
+const PROPERTY_LABEL_INJECTION_ZONES = ["property_label.list"] as const
+
+const TOPBAR_INJECTION_ZONES = ["topbar"] as const
+
 /**
  * All valid injection zones in the admin panel. An injection zone is a specific place
  * in the admin panel where a plugin can inject custom widgets.
@@ -501,4 +505,6 @@ export const INJECTION_ZONES = [
   ...GIFT_CARD_INJECTION_ZONES,
   ...LEGACY_GIFT_CARD_PRODUCT_INJECTION_ZONES,
   ...GIFT_CARD_PRODUCT_INJECTION_ZONES,
+  ...TOPBAR_INJECTION_ZONES,
+  ...PROPERTY_LABEL_INJECTION_ZONES,
 ] as const
