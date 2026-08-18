@@ -1,5 +1,12 @@
 # @medusajs/locking-redis
 
+## 2.20.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @medusajs/framework@2.20.0
+
 ## 2.19.0
 
 ### Patch Changes

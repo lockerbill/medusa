@@ -1,5 +1,7 @@
 # @medusajs/js-sdk
 
+## 2.20.0
+
 ## 2.19.0
 
 ### Minor Changes

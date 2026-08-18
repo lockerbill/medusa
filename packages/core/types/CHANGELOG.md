@@ -1,5 +1,11 @@
 # @medusajs/types
 
+## 2.20.0
+
+### Patch Changes
+
+- [#16457](https://github.com/medusajs/medusa/pull/16457) [`693310310610cf439fabb73230187028f2755696`](https://github.com/medusajs/medusa/commit/693310310610cf439fabb73230187028f2755696) Thanks [@sradevski](https://github.com/sradevski)! - Implement Medusa Cloud as a built-in search provider
+
 ## 2.19.0
 
 ### Patch Changes
